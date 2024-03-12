@@ -2,6 +2,7 @@ import { inventoryManagerApi } from "@/api/functions/parts.api";
 import DataGridTable from "@/components/Table/DataGridTable";
 import DashboardLayout from "@/layout/dashboard/DashboardLayout";
 import {
+  Button,
   Container,
   IconButton,
   Menu,
@@ -17,8 +18,15 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Inventory } from "@/interface/partsInventory.interface";
+import CustomInput from "@/ui/Inputs/CustomInput";
+import UpgradeIcon from "@mui/icons-material/Upgrade";
+import { useDebounce } from "@/hooks/utils/useDebounce";
 
 export const StyledContainer = styled(Container)`
+  margin: 5px;
+`;
+
+export const StyledSearchContainer = styled(Container)`
   margin: 5px;
 `;
 
@@ -86,11 +94,10 @@ const MenuButton = ({
 };
 
 const inventoryManager = () => {
-  const { data: inventoryData, isPending: loading } = useQuery({
+  const { data: inventoryDta, isPending: loading } = useQuery({
     queryKey: ["inventory"],
     queryFn: inventoryManagerApi
   });
-  console.log("inventory", inventoryData);
 
   const [opened, setOpened] = useState(false);
   const handleClickOpen = () => {
@@ -100,12 +107,33 @@ const inventoryManager = () => {
     setOpened(false);
   };
 
+  const [searchInput, setSearchInput] = useState("");
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    setSearchInput(e.target.value);
+  };
+  const handleChange = (e: any) => {
+    setSearchInput(e.target.value);
+  };
+  const debouncedSearch = useDebounce(searchInput, 1000);
+  console.log("searchInput", debouncedSearch);
+
+  const inventoryData = inventoryDta?.filter((dta) => {
+    const searchItemLower = debouncedSearch?.toLowerCase();
+    const descriptionLower = dta.description.toLowerCase();
+
+    return (
+        descriptionLower.includes(searchItemLower) 
+    );
+  });
+
   const columns: GridColDef[] = [
     {
       field: "part_no",
       headerName: "Part No.",
       width: 250,
-      editable: true
+      editable: true,
+      renderCell: (params) => `#${params.row.part_no}`
     },
     {
       field: "description",
@@ -140,6 +168,32 @@ const inventoryManager = () => {
 
   return (
     <DashboardLayout>
+      <StyledSearchContainer>
+        <form style={{ float: "left" }} onSubmit={handleSubmit}>
+          <CustomInput
+            sx={{ background: "white" }}
+            placeholder="Search Something"
+            name="searchInput"
+            value={searchInput}
+            onChange={handleChange}
+          />
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ m: 0.5, p: 1.5 }}
+            type="submit"
+          >
+            Search
+          </Button>
+        </form>
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ m: 0.5, p: 1.5, float: "right" }}
+        >
+          <UpgradeIcon /> Update
+        </Button>
+      </StyledSearchContainer>
       <StyledContainer>
         <DataGridTable
           columns={columns}
@@ -151,7 +205,7 @@ const inventoryManager = () => {
               }
             }
           }}
-          pageSizeOptions={[5]}
+          pageSizeOptions={[5, 10, 15]}
           loading={loading}
         />
       </StyledContainer>

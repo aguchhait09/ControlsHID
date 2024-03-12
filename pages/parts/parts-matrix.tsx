@@ -1,9 +1,9 @@
 import { partsMatrixApi } from "@/api/functions/parts.api";
 import DashboardLayout from "@/layout/dashboard/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
-import { StyledContainer } from "./inventory-manager";
+import { StyledContainer, StyledSearchContainer } from "./inventory-manager";
 import DataGridTable from "@/components/Table/DataGridTable";
-import { IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { Button, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -13,7 +13,8 @@ import { PartsMatrix } from "@/interface/partsMatrix.interface";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { useRouter } from "next/router";
 import Link from "next/link";
-
+import CustomInput from "@/ui/Inputs/CustomInput";
+import AddIcon from "@mui/icons-material/Add";
 interface menuButtonType {
   title1?: string;
   title2?: string;
@@ -95,7 +96,8 @@ const partsMatrix = () => {
       field: "part_no",
       headerName: "Part No.",
       width: 150,
-      editable: true
+      editable: true,
+      renderCell: (params) => `#${params.row.part_no}`
     },
     {
       field: "description",
@@ -113,7 +115,8 @@ const partsMatrix = () => {
       field: "price",
       headerName: "Price ($)",
       width: 150,
-      editable: true
+      editable: true,
+      renderCell: (params) => `$  ${params.row.price}`
     },
     {
       field: "part_type",
@@ -156,6 +159,24 @@ const partsMatrix = () => {
 
   return (
     <DashboardLayout>
+      <StyledSearchContainer>
+        <form style={{ float: "left" }}>
+          <CustomInput
+            sx={{ background: "white" }}
+            placeholder="Search Something"
+          />
+          <Button variant="contained" color="success" sx={{ m: 0.5, p: 1.5 }}>
+            Search
+          </Button>
+        </form>
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ m: 0.5, p: 1.5, float: "right" }}
+        >
+          <AddIcon /> Create
+        </Button>
+      </StyledSearchContainer>
       <StyledContainer>
         <DataGridTable
           columns={columns}
@@ -167,7 +188,7 @@ const partsMatrix = () => {
               }
             }
           }}
-          pageSizeOptions={[5]}
+          pageSizeOptions={[5, 10, 15]}
         />
       </StyledContainer>
     </DashboardLayout>

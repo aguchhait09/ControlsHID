@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { NAV } from "@/config/constants";
 import navConfig from "../config-navigation";
 import SidebarItem from "./SidebarItem";
+import assest from "@/json/assest";
 
 interface SidebarProps {
   openNav: boolean;
@@ -73,7 +74,8 @@ export default function Sidebar({ openNav, onCloseNav }: SidebarProps) {
         }
       }}
     >
-      <Logo sx={{ mt: 3, ml: 4 }} />
+      {/* <Logo sx={{ mt: 3, ml: 4 }} /> */}
+      <img src={assest.logo_img} alt="" height={60} />
 
       {renderAccount}
 
